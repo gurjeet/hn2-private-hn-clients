@@ -1,0 +1,218 @@
+---
+import Base from '../layouts/Base.astro';
+import { getClients } from '../lib/clients.js';
+
+const clients = (await getClients()).slice().sort((a, b) => a.name.localeCompare(b.name));
+const total = clients.length;
+const platformSet = new Set();
+const openSourceCount = clients.filter((client) => client.open_source).length;
+
+for (const client of clients) {
+  for (const platform of client.platforms) {
+    platformSet.add(platform);
+  }
+}
+
+const platformCount = platformSet.size;
+const platformOrder = ['web', 'ios', 'android', 'macos', 'windows', 'linux', 'terminal', 'extension'];
+const platformOptions = platformOrder.filter((platform) => platformSet.has(platform));
+const priceOptions = ['free', 'freemium', 'paid'].filter((price) =>
+  clients.some((client) => client.price === price)
+);
+const statusOptions = ['active', 'inactive', 'discontinued'].filter((status) =>
+  clients.some((client) => client.status === status)
+);
+
+const toSnippet = (client) => {
+  const raw = client.tagline || client.description;
+  if (raw.length <= 140) {
+    return raw;
+  }
+  return `${raw.slice(0, 137)}...`;
+};
+---
+
+<Base
+  title="hackernews.hn - curated Hacker News clients"
+  description="Browse a hand-curated directory of Hacker News clients across web, mobile, desktop, and terminal."
+>
+  <section class="hero">
+    <h1>Find your favorite way to read Hacker News.</h1>
+    <p>
+      A human-curated directory of HN clients across platforms, from minimalist web
+      readers to full-featured mobile and terminal apps.
+    </p>
+    <div class="stats">
+      <span>{total} curated clients</span>
+      <span>{platformCount} platforms covered</span>
+      <span>{openSourceCount} open-source picks</span>
+    </div>
+  </section>
+
+  <section class="filters" data-filters>
+    <div class="filters-row">
+      <label class="search">
+        <span>Search</span>
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search clients, tags, or features"
+          autocomplete="off"
+        />
+      </label>
+      <label class="toggle">
+        <input id="openSourceOnly" type="checkbox" />
+        <span>Open-source only</span>
+      </label>
+      <button id="clearFilters" class="clear-button" type="button">Clear</button>
+    </div>
+    <div class="filters-row">
+      <div class="filter-group" data-filter-group="platform">
+        <span class="filter-label">Platform</span>
+        <div class="filter-options">
+          {platformOptions.map((platform) => (
+            <label class="filter-chip" key={`platform-${platform}`}>
+              <input type="checkbox" value={platform} />
+              <span>{platform}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+      <div class="filter-group" data-filter-group="price">
+        <span class="filter-label">Price</span>
+        <div class="filter-options">
+          {priceOptions.map((price) => (
+            <label class="filter-chip" key={`price-${price}`}>
+              <input type="checkbox" value={price} />
+              <span>{price}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+      <div class="filter-group" data-filter-group="status">
+        <span class="filter-label">Status</span>
+        <div class="filter-options">
+          {statusOptions.map((status) => (
+            <label class="filter-chip" key={`status-${status}`}>
+              <input type="checkbox" value={status} />
+              <span>{status}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
+    <div class="results-line">
+      Showing <span id="resultsCount">{total}</span> of {total} clients
+    </div>
+  </section>
+
+  <h2 class="section-title">Featured clients</h2>
+  <section class="cards" id="clientsGrid">
+    {clients.map((client, index) => (
+      <article
+        class="card"
+        data-client-card
+        data-platforms={client.platforms.join(' ')}
+        data-price={client.price}
+        data-status={client.status}
+        data-open-source={client.open_source ? 'true' : 'false'}
+        data-search={`${client.name} ${client.tagline ?? ''} ${client.description} ${client.tags?.join(' ') ?? ''} ${client.platforms.join(' ')} ${client.price} ${client.status}`.toLowerCase()}
+        style={`animation-delay: ${index * 40}ms`}
+      >
+        <h3>
+          <a href={`/clients/${client.id}`}>{client.name}</a>
+        </h3>
+        <p>{toSnippet(client)}</p>
+        <div class="meta">
+          {client.platforms.map((platform) => (
+            <span class="tag" key={`${client.id}-${platform}`}>{platform}</span>
+          ))}
+          {client.tags?.slice(0, 2).map((tag) => (
+            <span class="tag" key={`${client.id}-${tag}`}>{tag}</span>
+          ))}
+        </div>
+        <div class="card-footer">
+          {client.price} · {client.status}
+        </div>
+      </article>
+    ))}
+  </section>
+
+  <div id="emptyState" class="empty-state" hidden>
+    No clients match the current filters. Try clearing a filter or searching again.
+  </div>
+
+  <script>
+    const searchInput = document.querySelector('#searchInput');
+    const openSourceOnly = document.querySelector('#openSourceOnly');
+    const clearFilters = document.querySelector('#clearFilters');
+    const cards = Array.from(document.querySelectorAll('[data-client-card]'));
+    const resultsCount = document.querySelector('#resultsCount');
+    const emptyState = document.querySelector('#emptyState');
+    const filterGroups = Array.from(document.querySelectorAll('[data-filter-group]'));
+
+    const getSelectedValues = (group) =>
+      Array.from(group.querySelectorAll('input:checked')).map((input) => input.value);
+
+    const matchesGroup = (selectedValues, itemValues) => {
+      if (!selectedValues.length) return true;
+      return selectedValues.some((value) => itemValues.includes(value));
+    };
+
+    const updateFilters = () => {
+      const query = searchInput.value.trim().toLowerCase();
+      const selected = {
+        platform: getSelectedValues(document.querySelector('[data-filter-group=\"platform\"]')),
+        price: getSelectedValues(document.querySelector('[data-filter-group=\"price\"]')),
+        status: getSelectedValues(document.querySelector('[data-filter-group=\"status\"]'))
+      };
+
+      let visibleCount = 0;
+
+      for (const card of cards) {
+        const matchesSearch = !query || card.dataset.search.includes(query);
+        const matchesOpenSource = !openSourceOnly.checked || card.dataset.openSource === 'true';
+        const platforms = card.dataset.platforms.split(' ');
+        const price = [card.dataset.price];
+        const status = [card.dataset.status];
+
+        const matches =
+          matchesSearch &&
+          matchesOpenSource &&
+          matchesGroup(selected.platform, platforms) &&
+          matchesGroup(selected.price, price) &&
+          matchesGroup(selected.status, status);
+
+        card.hidden = !matches;
+        if (matches) {
+          visibleCount += 1;
+        }
+      }
+
+      resultsCount.textContent = visibleCount;
+      emptyState.hidden = visibleCount !== 0;
+    };
+
+    const bindInputs = () => {
+      searchInput.addEventListener('input', updateFilters);
+      openSourceOnly.addEventListener('change', updateFilters);
+      filterGroups.forEach((group) => {
+        group.querySelectorAll('input').forEach((input) => {
+          input.addEventListener('change', updateFilters);
+        });
+      });
+      clearFilters.addEventListener('click', () => {
+        searchInput.value = '';
+        openSourceOnly.checked = false;
+        filterGroups.forEach((group) => {
+          group.querySelectorAll('input').forEach((input) => {
+            input.checked = false;
+          });
+        });
+        updateFilters();
+      });
+    };
+
+    bindInputs();
+  </script>
+</Base>
