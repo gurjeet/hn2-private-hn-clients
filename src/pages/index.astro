@@ -120,7 +120,7 @@ const toSnippet = (client) => {
         style={`animation-delay: ${index * 40}ms`}
       >
         <h3>
-          <a href={`/clients/${client.id}`}>{client.name}</a>
+          <a href={`./clients/${client.id}`}>{client.name}</a>
         </h3>
         <p>{toSnippet(client)}</p>
         <div class="meta">
