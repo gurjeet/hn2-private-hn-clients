@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "touch ./docs/.nojekyll; for ((depth = 0; depth < 7; ++depth)) ; do dots=''; level=$((depth-1 < 0 ? 0 : depth-1)); dots=$(printf %*s $level | sed 's^ ^../^g'); find_exactdepth $depth ./docs/ -type f -print0 | xargs -0 -n1 --no-run-if-empty sed 's^/_astro/^'$dots'_astro/^g' -i ; done",
     "preview": "astro preview",
     "validate:data": "node scripts/validate-clients.mjs"
   },
