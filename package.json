@@ -2,6 +2,10 @@
   "name": "hackernews-clients",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "~24.8.0",
+    "npm": "~11.6.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
