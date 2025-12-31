@@ -1,0 +1,29 @@
+{
+  "platforms": [
+    "web",
+    "ios",
+    "android",
+    "macos",
+    "windows",
+    "linux",
+    "terminal",
+    "extension"
+  ],
+  "client_types": ["web", "mobile", "desktop", "terminal", "extension"],
+  "pricing": ["free", "paid", "freemium"],
+  "status": ["active", "inactive", "discontinued"],
+  "tags": [
+    "offline",
+    "reader",
+    "keyboard",
+    "minimal",
+    "power-user",
+    "notifications",
+    "themeable",
+    "sync",
+    "saved",
+    "comments-first",
+    "fast",
+    "customizable"
+  ]
+}
