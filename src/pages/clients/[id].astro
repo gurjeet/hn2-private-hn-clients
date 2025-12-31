@@ -11,7 +11,7 @@ export async function getStaticPaths() {
 }
 
 const { client } = Astro.props;
-const title = `${client.name} | hackernews.hn`;
+const title = `${client.name} | HackerNews Clients`;
 const description = client.tagline || client.description;
 const linkItems = [
   { label: 'Homepage', url: client.homepage_url },
@@ -21,7 +21,7 @@ const linkItems = [
 ---
 
 <Base title={title} description={description}>
-  <a href="/">← Back to all clients</a>
+  <a href="../../">← Back to all clients</a>
   <section class="detail">
     <h1>{client.name}</h1>
     {client.tagline ? <p>{client.tagline}</p> : null}

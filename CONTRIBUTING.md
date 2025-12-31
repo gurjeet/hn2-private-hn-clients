@@ -1,6 +1,8 @@
-# Contributing to hackernews.hn
+# Contributing to the curated directory of HackerNews Clients
 
-Thanks for helping build a curated directory of Hacker News clients. Please keep submissions focused on actual HN clients (web, mobile, desktop, terminal, or extensions).
+Thanks for helping build a curated directory of Hacker News clients. Please keep
+submissions focused on actual HN clients (web, mobile, desktop, terminal, or
+extensions).
 
 ## How to add a client
 1. Pick a stable `id` slug (lowercase, numbers, and hyphens only).
