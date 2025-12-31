@@ -1,3 +1,14 @@
 /node_modules/
-/docs/
 /.tools/
+
+/data/
+/schema/
+/scripts/
+/src/
+/.envrc/
+/CONTRIBUTING.md
+/astro.config.mjs
+/package-lock.json
+/.astro
+/package.json
+
