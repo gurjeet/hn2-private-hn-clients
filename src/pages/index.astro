@@ -33,13 +33,13 @@ const toSnippet = (client) => {
 ---
 
 <Base
-  title="hackernews.hn - curated Hacker News clients"
+  title="HackerNews Clients - curated Hacker News clients"
   description="Browse a hand-curated directory of Hacker News clients across web, mobile, desktop, and terminal."
 >
   <section class="hero">
     <h1>Find your favorite way to read Hacker News.</h1>
     <p>
-      A human-curated directory of HN clients across platforms, from minimalist web
+      A curated directory of HN clients across platforms, from minimalist web
       readers to full-featured mobile and terminal apps.
     </p>
     <div class="stats">
@@ -120,7 +120,7 @@ const toSnippet = (client) => {
         style={`animation-delay: ${index * 40}ms`}
       >
         <h3>
-          <a href={`/clients/${client.id}`}>{client.name}</a>
+          <a href={`./clients/${client.id}`}>{client.name}</a>
         </h3>
         <p>{toSnippet(client)}</p>
         <div class="meta">
