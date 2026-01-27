@@ -63,11 +63,13 @@ DOT_ENVRC_DOT_GLOBAL_INCLUDED=yes
 # function calls.
 dot_envrc_dot_global_local_commands_dir="$dot_tools_path/bin"
 
-local hardlink_count="$(find "$repo_path" -name .envrc.global -print0 | xargs -0 ls -i | cut -d ' ' -f 1 | uniq | wc -l)"
+local hardlink_count="$(find "$repo_path" -name .envrc.global -print0 | xargs -0 ls -i | cut -d ' ' -f 1 | sort --unique | wc -l)"
 hardlink_count="$(echo $hardlink_count)" # Get rid of extraneous whitespace
 
 if [[ $hardlink_count != "1" ]]; then
     .notice "Expected hardlink count of .envrc.global to be 1, but found $hardlink_count."
+    .notice "******** INSPECT THE FILES BELOW ********"
+    find "$repo_path" -name .envrc.global -print0 | xargs -0 ls -i | sort
 fi
 
 function remove_local_command()
@@ -138,8 +140,8 @@ remove_local_command codex
 local codex_path="$(which codex)"
 make_local_command codex \"${codex_path}\"' --cd "'$var_tmp_path'" "$@"'
 
-export GIT_AUTHOR_NAME=Founder
-export GIT_AUTHOR_EMAIL=founder@hackernews.hn
+export GIT_AUTHOR_NAME=${GIT_AUTHOR_NAME:-Founder}
+export GIT_AUTHOR_EMAIL=${GIT_AUTHOR_EMAIL:-founder@hackernews.hn}
 
 export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
 export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
